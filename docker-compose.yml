@@ -1,0 +1,20 @@
+services:
+  filament-tracker:
+    build: .
+    container_name: filament-tracker
+    restart: unless-stopped
+    ports:
+      - "8099:8099"
+    volumes:
+      - ./data:/data
+    environment:
+      # Direct printer connection (all three shown on the printer's screen)
+      PRINTER_HOST: "${PRINTER_HOST}"
+      PRINTER_SERIAL: "${PRINTER_SERIAL}"
+      PRINTER_ACCESS_CODE: "${PRINTER_ACCESS_CODE}"
+      # Home Assistant sync + spool selector (optional but recommended)
+      HA_URL: "${HA_URL}"
+      HA_TOKEN: "${HA_TOKEN}"
+      # Behavior
+      DEDUCT_ON_FAILED: "${DEDUCT_ON_FAILED:-true}"
+      AUTO_SELECT_SPOOL: "${AUTO_SELECT_SPOOL:-true}"

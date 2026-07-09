@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poor Man's Filament Tracker</title>
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+<header class="appbar">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="spoolGrad" x1="6" y1="8" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#4f8ef7"/><stop offset="1" stop-color="#8b5cf6"/>
+        </linearGradient>
+      </defs>
+      <circle cx="20" cy="26" r="13" stroke="url(#spoolGrad)" stroke-width="7"/>
+      <circle cx="20" cy="26" r="3" fill="currentColor" opacity=".65"/>
+      <path d="M30.5 17.5 C 36 12.5 39 10.5 44 9.5" stroke="url(#spoolGrad)" stroke-width="3.4" stroke-linecap="round"/>
+    </svg>
+    <div class="title">Poor Man's Filament Tracker</div>
+  </div>
+  <div class="pills">
+    <div id="pill-printer" class="pill"></div>
+    <div id="pill-ha" class="pill"></div>
+    <select id="currency-select" class="currency-select" title="Currency"></select>
+    <button id="theme-toggle" class="btn ghost icon" title="Toggle light/dark">☀️</button>
+  </div>
+</header>
+
+<main>
+  <section id="verify-card" class="card alert hidden"></section>
+  <section id="print-banner" class="card printing hidden"></section>
+
+  <section id="hero" class="card hero"></section>
+  <div id="detection" class="detect hidden"></div>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Spools</h2>
+      <label class="toggle"><input type="checkbox" id="show-archived"><span>archived</span></label>
+      <button class="btn primary" id="btn-add">＋ Add spool</button>
+    </div>
+    <div id="spools" class="grid"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Since last filament change</h2>
+      <div id="moveall" class="moveall hidden">
+        <span class="muted small">wrong spool?</span>
+        <select id="moveall-select"></select>
+        <button class="btn small" id="moveall-btn">Move all</button>
+      </div>
+    </div>
+    <div id="recent" class="card list"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>History</h2></div>
+    <div id="history" class="card list"></div>
+  </section>
+
+  <footer class="credit">
+    <span>Developed by
+      <a href="https://github.com/YaddyVirus" target="_blank" rel="noopener noreferrer">
+        <svg class="gh" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        Yadullah Abidi</a>
+    </span>
+    <span class="quip">No filament was harmed in the making of this app — every gram was tracked.</span>
+  </footer>
+</main>
+
+<dialog id="spool-dialog">
+  <form id="spool-form" method="dialog">
+    <h3 id="dialog-title">Add spool</h3>
+    <input type="hidden" name="id">
+    <div class="row">
+      <label>Brand
+        <select name="brand" id="brand-select"></select>
+      </label>
+      <label>Material
+        <select name="material" id="material-select"></select>
+      </label>
+    </div>
+    <div id="swatches" class="swatches hidden"></div>
+    <div class="row">
+      <label>Name / color name <input name="name" placeholder="Pitch Black" required></label>
+      <label class="narrow">Custom color <input type="color" name="color_hex" value="#4f8ef7"></label>
+    </div>
+    <div class="row">
+      <label>Spool weight (g) <input type="number" name="initial_weight_g" value="1000" min="1" step="1"></label>
+      <label>Remaining (g) <input type="number" name="remaining_g" min="0" step="0.1" placeholder="= spool weight"></label>
+    </div>
+    <div class="row">
+      <label>Cost (optional) <input type="number" name="cost" min="0" step="0.01"></label>
+      <label>Notes <input name="notes"></label>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="btn-cancel">Cancel</button>
+      <button class="btn primary" type="submit" id="btn-save">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="use-dialog">
+  <form id="use-form" method="dialog">
+    <h3>Log manual usage</h3>
+    <input type="hidden" name="id">
+    <div class="row">
+      <label>Grams used <input type="number" name="grams" min="0.1" step="0.1" required></label>
+      <label>Job name <input name="job_name" placeholder="Manual entry"></label>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="btn-use-cancel">Cancel</button>
+      <button class="btn primary" type="submit">Deduct</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="usage-dialog">
+  <form id="usage-form" method="dialog">
+    <h3>Edit print</h3>
+    <input type="hidden" name="id">
+    <p id="usage-job" class="muted small"></p>
+    <div class="row">
+      <label>Grams <input type="number" name="grams" min="0" step="0.1" required></label>
+      <label>Spool <select name="spool_id"></select></label>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="btn-usage-cancel">Cancel</button>
+      <button class="btn primary" type="submit">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toasts"></div>
+<script src="static/app.js"></script>
+</body>
+</html>
