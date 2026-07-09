@@ -33,12 +33,15 @@ or 60% gone.
   the moment a print finishes or fails (prorated by progress, because a
   print that died at 80% did not use 0 g, whatever the printer would
   like everyone to believe).
-- 🎯 **Auto-detects the loaded spool** — matches the printer's
-  external-spool filament setting (material + color) against the spool
-  library and loads the right one automatically. When two spools are
-  identical twins with no electronic way to tell them apart (see: the
-  entire premise of this project), it asks for confirmation instead of
-  guessing.
+- 🎯 **Auto-detects the loaded spool** — matches whatever material and
+  color you set on the printer's own filament screen (Load → Edit) when
+  you loaded it against the spool library, and loads the matching one
+  automatically. No RFID means the printer doesn't know what's on the
+  spool unless you tell it, so this only works if that screen is filled
+  in. Congratulations, that "Edit" button you've ignored since unboxing
+  now has a job. When two spools are identical twins with no electronic
+  way to tell them apart (see: the entire premise of this project), it
+  asks for confirmation instead of guessing.
 - 🧵 **Spool library** — brand, material, color, weight, cost — picked
   from a built-in catalog (Numakers, Bambu Lab, eSUN, Polymaker, SUNLU,
   Overture, Hatchbox) or entered by hand for filament obscure enough
@@ -84,6 +87,11 @@ optional; with the [ha-bambulab](https://github.com/greghesp/ha-bambulab)
 integration installed, the app can alternatively read the same printer
 data secondhand through HA's websocket.
 
+The "loaded filament" part of that MQTT stream is just whatever you
+typed into the printer's filament screen via **Edit** — the one button
+on that screen that used to do nothing for your workflow and now quietly
+drives the entire auto-detection feature.
+
 ## 🚀 Getting started
 
 ### Requirements
@@ -98,8 +106,8 @@ Nothing to sign up for, nothing to buy.
 ### Installation
 
 ```bash
-git clone https://github.com/YaddyVirus/Poor-Man-s-Filament-Tracker.git
-cd Poor-Man-s-Filament-Tracker
+git clone https://github.com/YaddyVirus/Poor-Mans-Filament-Tracker.git
+cd Poor-Mans-Filament-Tracker
 cp .env.example .env
 # edit .env: printer IP/serial/access code (and HA URL/token, if used)
 docker compose up -d --build
@@ -142,9 +150,12 @@ panel_iframe:
 - **Add spools** via "＋ Add spool" — pick a brand and color from the
   catalog or go rogue with custom values, set the weight and, for the
   brave, the price paid.
-- **Load a spool** manually with the "Load" button, or let auto-detect
-  notice what's set on the printer. It's usually right; when it isn't
-  sure, it asks instead of quietly corrupting the cost history.
+- **Load a spool** manually with the "Load" button, or set the material
+  and color on the printer's own filament screen when you load it and
+  let auto-detect notice and match it — that screen is the *only* thing
+  the app has to go on, so it stays accurate only if you keep it
+  up to date. When auto-detect isn't sure, it asks instead of quietly
+  corrupting the cost history.
 - **Pick a currency** from the header dropdown. It's cosmetic — see
   Limitations before expecting exchange-rate math.
 - **Fix mistakes** in the History panel: correct a print's grams,
@@ -192,6 +203,12 @@ Filament Resource Planning Suite":
 The 3MF fetch from the printer failed (it happens — FTPS on these
 printers is moody). Click the ✎ on the entry and type in the grams from
 the slicer. The spool's remaining weight recalculates.
+
+**Auto-detect isn't picking up the loaded spool.**
+The printer has no RFID or scale — it only knows what you tell it. On
+the printer's filament screen, use **Edit** to set the material and
+color for the loaded spool, and auto-detect will pick it up from there.
+Skip that step and the app has nothing to match against.
 
 **Usage went to the wrong spool.**
 Swapped filament without telling the app? "Move all" in the *Since last

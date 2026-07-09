@@ -18,9 +18,9 @@ auto-discovering entities ending in `_print_status`, `_print_weight`,
 ## Automatic spool detection
 
 The external spool has no RFID — the printer only knows what *you* set
-when loading filament (which you do anyway for temperatures). The app
-matches that setting (material + nearest color) against your library and
-loads the right spool automatically.
+on its filament screen (Load → Edit) when loading. The app matches that
+setting (material + nearest color) against your library and loads the
+right spool automatically.
 
 **Twin spools** (same brand/material/color) can't be told apart: the app
 keeps the **last loaded** spool, shows a verify card in the UI, and raises
